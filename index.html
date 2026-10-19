@@ -544,8 +544,8 @@ dl.review dd{margin:0;font-weight:700;word-break:break-word}
 <script>
 /* ===== 設定（ここだけ書き換える） ===== */
 const CONFIG = {
-  LIFF_ID: "",   // 例: "1234567890-AbCdEfGh"（空欄のままならテストモード）
-  GAS_URL: ""    // 例: "https://script.google.com/macros/s/xxxx/exec"
+  LIFF_ID: "2012076811-vdp99cfU",
+  GAS_URL: "https://script.google.com/macros/s/AKfycbxiarxVcRCPRmOcYQY6SBfqkR3XeNQ274DaIjMjFqD0ZHZJcirSiBI-vJr-G44RR0Vr/exec"
 };
 /* ===================================== */
 
@@ -672,6 +672,7 @@ const LABELS = {
 function collect(){
   const d = {};
   const multi = ["disease","constitution","allergy","dosage_form","pregnancy","activity","food","lifestyle","other_rx_techo"];
+  d.consent = values("consent")[0] || "";
   const radios = ["writer","sex","techo","generic","side_effect","drug_allergy","other_rx","otc","alcohol","smoking"];
   radios.forEach(n => d[n] = values(n)[0] || "");
   multi.forEach(n => d[n] = values(n).join("、"));
@@ -711,6 +712,10 @@ async function send(){
       body: JSON.stringify(payload)
     });
     const json = await res.json();
+    if (json.result === "too_soon"){
+      err.textContent = "送信済みです。続けて送信する場合は、1分ほど待ってからもう一度お試しください。";
+      err.classList.add("show"); btn.disabled = false; btn.textContent = "送信する"; return;
+    }
     if (json.result !== "ok") throw new Error("ng");
     show("s-done");
   }catch(e){
